@@ -16,7 +16,7 @@ from sklearn.metrics.cluster import adjusted_rand_score, normalized_mutual_info_
 import warnings
 warnings.filterwarnings("ignore")
 
-def process_adata(adata_raw, scale = False, filter = True, min_genes = 10, min_cells = 3):
+def process_adata_autocorr(adata_raw, scale = False, filter = True, min_genes = 10, min_cells = 3):
     
     adata = adata_raw.copy()
     if filter:
@@ -29,8 +29,8 @@ def process_adata(adata_raw, scale = False, filter = True, min_genes = 10, min_c
     
     if scale:
         sc.pp.scale(adata, max_value=10)
-    sc.tl.pca(adata, svd_solver='arpack')
-    sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)  # 计算邻居图
+    # sc.tl.pca(adata, svd_solver='arpack')
+    # sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)  # 计算邻居图
     
     return adata
 def computer_gene_autocorr(adata_gene, mode = "moran", scale = False, filter = False):
@@ -41,7 +41,7 @@ def computer_gene_autocorr(adata_gene, mode = "moran", scale = False, filter = F
         add = "C"
     uns_name = mode + add
 
-    adata_gene = process_adata(adata_gene, scale = scale, filter = filter)
+    adata_gene = process_adata_autocorr(adata_gene, scale = scale, filter = filter)
         
     sq.gr.spatial_neighbors(adata_gene)
     sq.gr.spatial_autocorr( # before scale can be = True # adata.uns['moranI']
@@ -119,6 +119,8 @@ def spatial_gene_autocorr(adata_sp, cell_type_col = "Level1", save_dir = None):
         else:
             adata_gene = adata_sp[adata_sp.obs[cell_type_col] == select_ct].copy()
         print(adata_gene.shape)
+        if adata_gene.shape[0] <= 50:
+            continue
         
         moranI_df = computer_gene_autocorr(adata_gene, mode = "moran", scale = False, filter = False)
         # print(moranI_df)
@@ -132,12 +134,12 @@ def spatial_gene_autocorr(adata_sp, cell_type_col = "Level1", save_dir = None):
         gearyC_df = gearyC_df.loc[overlap_genes]
         gearyC_df.name = select_ct
 
-        print(select_ct, np.percentile(moranI_df, [0, 25, 50, 75, 100]))
+        print(select_ct, np.nanpercentile(moranI_df, [0, 25, 50, 75, 100]))
         all_moranI_df = pd.concat([all_moranI_df, moranI_df], axis=1)
         all_gearyC_df = pd.concat([all_gearyC_df, gearyC_df], axis=1)
 
     all_moranI_df, select_moranI_df = save_gene_autocorr_result(all_moranI_df, mode="moran", save_dir = save_dir)
-    all_gearyC_df, select_gearyC_df = save_gene_autocorr_result(all_moranI_df, mode="geary", save_dir = save_dir)
+    all_gearyC_df, select_gearyC_df = save_gene_autocorr_result(all_gearyC_df, mode="geary", save_dir = save_dir)
 
     return all_moranI_df, all_gearyC_df, select_moranI_df, select_gearyC_df
 
@@ -282,7 +284,7 @@ def get_sub_adata(adata, cell_type_col = "Level1", cell_type = "Fibroblast"):
     
     return adata_subset
 
-def process_adata(adata_raw, scale = False, filter = True, min_genes = 50, min_cells = 3, select_highly_variable = True):
+def process_adata_cluster(adata_raw, scale = False, filter = True, min_genes = 50, min_cells = 3, select_highly_variable = True):
     
     adata = adata_raw.copy()
     if filter:
@@ -325,7 +327,7 @@ def get_adata_cluster(adata, method = "ledien", resolutions = [0.3, 0.5, 0.8]):
 def run_cluster_plot(adata_sp_cluster, save_dir, resolutions = [0.3, 0.5, 0.8], cell_type_col = "Level1" ):
     os.makedirs(save_dir, exist_ok=True)
     
-    adata_sp_cluster = process_adata(adata_sp_cluster, scale = False, filter = True)
+    adata_sp_cluster = process_adata_cluster(adata_sp_cluster, scale = False, filter = True)
     adata_sp_cluster = get_adata_cluster(adata_sp_cluster, resolutions = resolutions)
     
     all_metric_df = pd.DataFrame()
