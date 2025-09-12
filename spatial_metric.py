@@ -154,12 +154,9 @@ def plot_compare_spatial_autocorr(df_sp_svc, df_original, save_dir, mode):
     df_original (pd.DataFrame): Dataframe with genes as rows, cell types as columns.
     output_file (str): Path to save the boxplot image.
     """
-    # Ensure dataframes have the same structure
-    if not df_sp_svc.columns.equals(df_original.columns):
-        raise ValueError("Dataframes must have the same columns (cell types).")
-    
+   
     # Prepare data for boxplot
-    cell_types = df_sp_svc.columns
+    cell_types = df_sp_svc.columns.intersection(df_original.columns)
     data = []
     for cell_type in cell_types:
         # Extract values for each cell type
