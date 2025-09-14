@@ -321,7 +321,7 @@ def get_adata_cluster(adata, method = "ledien", resolutions = [0.3, 0.5, 0.8]):
     return adata
 
 
-def run_cluster_plot(adata_sp_cluster, save_dir, resolutions = [0.3, 0.5, 0.8], cell_type_col = "Level1" ):
+def run_cluster_plot(adata_sp_cluster, save_dir, resolutions = [0.3, 0.5, 0.8], cell_type_col = "Level1", plot_single_flag = False ):
     os.makedirs(save_dir, exist_ok=True)
     
     adata_sp_cluster = process_adata_cluster(adata_sp_cluster, scale = False, filter = True)
@@ -361,6 +361,7 @@ def run_cluster_plot(adata_sp_cluster, save_dir, resolutions = [0.3, 0.5, 0.8], 
                )
     plt.savefig(f"{save_dir}/umap.png")
 
+
     plt.figure(figsize=(10, 10))
     sc.pl.scatter(adata_sp_cluster, size=30,
             color=[f"leiden_res_{resolutions[1]}", cell_type_col], 
@@ -368,3 +369,25 @@ def run_cluster_plot(adata_sp_cluster, save_dir, resolutions = [0.3, 0.5, 0.8], 
             show = False
         )
     plt.savefig(f"{save_dir}/spatial.png")
+
+    if plot_single_flag:
+        plot_types = [f"leiden_res_{resolution}" for resolution in resolutions]
+        plot_types.append(cell_type_col)
+        print(plot_types)
+        for plot_res in plot_types:
+            plt.figure(figsize=(10, 10))
+            sc.pl.umap(adata_sp_cluster, 
+                    color=plot_res,
+                    show = False
+                    )
+            plt.savefig(f"{save_dir}/umap_{plot_res}.pdf")
+            plt.close()
+
+            plt.figure(figsize=(10, 10))
+            sc.pl.scatter(adata_sp_cluster, size=30,
+                    color=plot_res,
+                    x = "x", y = "y", 
+                    show = False
+                )
+            plt.savefig(f"{save_dir}/spatial_{plot_res}.pdf")
+            plt.close()

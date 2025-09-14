@@ -9,11 +9,14 @@ from spatial_metric import spatial_gene_autocorr, plot_compare_spatial_autocorr,
 
 
 resolutions = [0.3, 0.5, 0.8]
-# resolutions = [0.1, 0.3, 0.5]
+resolutions = [0.1, 0.3, 0.5]
 patient_ids = ["P1CRC", "P2CRC", "P5CRC"]
 patient_ids = ["P1CRC"]
 
 patient_ids = ["P2CRC", "P5CRC", "P3NAT","P5NAT"]
+patient_ids = ["P5NAT","P3NAT"]
+patient_ids = ["P1CRC", "P2CRC", "P5CRC", "P3NAT","P5NAT"]
+
 data_type = "HD"
 
 cell_type_col = "Level1"
@@ -41,8 +44,9 @@ for patient_id in tqdm(patient_ids, desc="Processing patients"):
 
     run_cluster_plot(adata_sp, f"{save_path}/original", 
                         resolutions = resolutions, 
-                        cell_type_col = "Level1") 
-    moranI_sp, gearyC_sp, _, _ = spatial_gene_autocorr(adata_sp, cell_type_col = "Level1", save_dir = f"{save_path}/original")
+                        cell_type_col = "Level1",
+                        plot_single_flag=True) 
+    # moranI_sp, gearyC_sp, _, _ = spatial_gene_autocorr(adata_sp, cell_type_col = "Level1", save_dir = f"{save_path}/original")
     
 
     print(f"Processing SVC data for {patient_id}_{data_type}")
@@ -59,9 +63,10 @@ for patient_id in tqdm(patient_ids, desc="Processing patients"):
 
     run_cluster_plot(adata_sp_svc, f"{save_path}/sp_SVC", 
                         resolutions = resolutions,
-                        cell_type_col = "Level1")
-    moranI_sp_svc, gearyC_sp_svc, _, _ = spatial_gene_autocorr(adata_sp_svc, cell_type_col = "Level1", 
-                                                                save_dir = f"{save_path}/sp_SVC")
+                        cell_type_col = "Level1",
+                        plot_single_flag=True)
+    # moranI_sp_svc, gearyC_sp_svc, _, _ = spatial_gene_autocorr(adata_sp_svc, cell_type_col = "Level1", 
+    #                                                             save_dir = f"{save_path}/sp_SVC")
     
-    plot_compare_spatial_autocorr(moranI_sp_svc, moranI_sp, save_dir = save_path, mode = "moran")
-    plot_compare_spatial_autocorr(gearyC_sp_svc, gearyC_sp, save_dir = save_path, mode = "geary")
+    # plot_compare_spatial_autocorr(moranI_sp_svc, moranI_sp, save_dir = save_path, mode = "moran")
+    # plot_compare_spatial_autocorr(gearyC_sp_svc, gearyC_sp, save_dir = save_path, mode = "geary")
