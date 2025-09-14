@@ -171,10 +171,24 @@ def plot_compare_spatial_autocorr(df_sp_svc, df_original, save_dir, mode):
     # Convert to dataframe
     plot_df = pd.DataFrame(data)
     
-    # Set up the plot
+    # Set up the boxplot
+    # plt.figure(figsize=(12, 6))
+    # sns.boxplot(x='Cell Type', y='Value', hue='Source', data=plot_df, palette=['#1f77b4', '#ff7f0e'])
+
+    # Set up the violin plot
+    def remove_outliers(df, col):
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower = Q1 - 5 * IQR
+        upper = Q3 + 5 * IQR
+        return df[(df[col] >= lower) & (df[col] <= upper)]
+
+    clean_df = remove_outliers(plot_df, "Value")
     plt.figure(figsize=(12, 6))
-    sns.boxplot(x='Cell Type', y='Value', hue='Source', data=plot_df, palette=['#1f77b4', '#ff7f0e'])
-    
+    sns.violinplot(x='Cell Type', y='Value', hue='Source', data=clean_df, palette=['#1f77b4', '#ff7f0e'], split=True,
+                   inner="quart")
+
     # Add dashed lines between cell types
     for i in range(len(cell_types) - 1):
         plt.axvline(x=i + 0.5, color='gray', linestyle='--', alpha=0.5)
