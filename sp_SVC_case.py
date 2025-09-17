@@ -7,15 +7,22 @@ import numpy as np
 from tqdm import tqdm
 from spatial_metric import spatial_gene_autocorr, plot_compare_spatial_autocorr, get_sampeled_adata, run_cluster_plot
 
+import argparse
 
-resolutions = [0.3, 0.5, 0.8]
+parser = argparse.ArgumentParser(description="VisiumHD REVISE")
+parser.add_argument("--adjacent_graph_alpha", type=float, default=0.8, help="adjacent_graph_alpha parameter")
+parser.add_argument("--graph_pot_reg", type=float, default=1.0, help="graph_pot_reg parameter")
+parser.add_argument("--graph_pot_reg_m", type=float, default=1.0, help="graph_pot_reg_m parameter")
+args = parser.parse_args()
+
+# resolutions = [0.3, 0.5, 0.8]
 resolutions = [0.1, 0.3, 0.5]
-patient_ids = ["P1CRC", "P2CRC", "P5CRC"]
+# patient_ids = ["P1CRC", "P2CRC", "P5CRC"]
 patient_ids = ["P1CRC"]
 
-patient_ids = ["P2CRC", "P5CRC", "P3NAT","P5NAT"]
-patient_ids = ["P5NAT","P3NAT"]
-patient_ids = ["P1CRC", "P2CRC", "P5CRC", "P3NAT","P5NAT"]
+# patient_ids = ["P2CRC", "P5CRC", "P3NAT","P5NAT"]
+# patient_ids = ["P5NAT","P3NAT"]
+# patient_ids = ["P1CRC", "P2CRC", "P5CRC", "P3NAT","P5NAT"]
 
 data_type = "HD"
 
@@ -23,9 +30,10 @@ cell_type_col = "Level1"
 
 sample_size = 30000
 
-raw_data_path = "/home/wys/Sim2Real-ST/REVISE_data_process/raw_data"
-svc_data_path = "../REVISE/results/HD"
-save_dir = "output/sp_SVC_case"
+# raw_data_path = "/home/wys/Sim2Real-ST/REVISE_data_process/raw_data"
+raw_data_path = "/cpfs01/projects-HDD/cfff-c7cd658afc74_HDD/public/wuyushuai/store_data/CRC_processed"
+svc_data_path = "../REVISE_new/results/HD"
+save_dir = f"output/sp_SVC_case/alpha_{args.adjacent_graph_alpha}_reg_{args.graph_pot_reg}_regm_{args.graph_pot_regm}"
 
 
 for patient_id in tqdm(patient_ids, desc="Processing patients"):
